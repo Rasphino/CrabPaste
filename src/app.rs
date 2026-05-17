@@ -118,6 +118,21 @@ impl eframe::App for CrabPasteApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let ctx = ui.ctx().clone();
 
+        // Handle dropped files
+        let dropped_files = ctx.input(|i| i.raw.dropped_files.clone());
+        for file in &dropped_files {
+            if let Some(path) = &file.path {
+                if path.extension().map_or(false, |ext| ext.eq_ignore_ascii_case("json")) {
+                    if let Ok(content) = std::fs::read_to_string(path) {
+                        self.input_text = content;
+                        self.set_info(&format!("Loaded: {}", file.name));
+                    } else {
+                        self.set_error(&format!("Failed to read: {}", file.name));
+                    }
+                }
+            }
+        }
+
         // Set up text styles
         let mut style = (*ctx.global_style()).clone();
         style.text_styles.insert(
