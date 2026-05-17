@@ -1,0 +1,525 @@
+{
+    "JSONIFY_PRETTYPRINT_REGULAR": false,
+    "code": "aeolus/ok",
+    "data": {
+        "atLeast": 3,
+        "columnPermissions": {
+            "group_by_list": {
+                "2667704": 0,
+                "2667821": 0
+            },
+            "select_list": {
+                "2667711": 0,
+                "2667749": 0,
+                "2667774": 0,
+                "2667805": 0
+            },
+            "where_list": {
+                "2667702": 0
+            }
+        },
+        "columns": [
+            {
+                "dim_id_str": "2667704#origin",
+                "dm_id": "2667704",
+                "id": 0,
+                "is_store": true,
+                "name": "\u4e1a\u52a1\u65e5\u671f",
+                "unique_id": 260513092436030
+            },
+            {
+                "dim_id_str": "2667821#origin",
+                "dm_id": "2667821",
+                "id": 1,
+                "is_store": true,
+                "name": "\u603b\u5206\u884c\u91cd\u70b9\u5ba2\u6237\u6807\u5fd7",
+                "unique_id": 260513092436039
+            },
+            {
+                "dim_id_str": "sum_2667805#origin",
+                "dm_id": "sum_2667805",
+                "id": 2,
+                "is_store": true,
+                "name": "VN",
+                "unique_id": 260513092436082
+            },
+            {
+                "dim_id_str": "countdistinct_2667711#origin",
+                "dm_id": "countdistinct_2667711",
+                "id": 3,
+                "is_store": true,
+                "name": "\u5ba2\u6237\u7f16\u53f7",
+                "unique_id": 260513092436197
+            },
+            {
+                "dim_id_str": "sum_2667774#origin",
+                "dm_id": "sum_2667774",
+                "id": 4,
+                "is_store": true,
+                "name": "\u975e\u8d34\u73b0\u8d37\u6b3e\u4f59\u989d",
+                "unique_id": 260513092436238
+            },
+            {
+                "dim_id_str": "sum_2667749#origin",
+                "dm_id": "sum_2667749",
+                "id": 5,
+                "is_store": true,
+                "name": "\u5b58\u6b3e\u5e74\u65e5\u5747",
+                "unique_id": 260513092436247
+            }
+        ],
+        "costMs": 244,
+        "emailPrefix": "930565",
+        "engineType": 0,
+        "extraDisplayMsg": "",
+        "hitTableInfoList": [
+            {}
+        ],
+        "isThrowAwayReqJson": false,
+        "queryEngineSelector": "clickhouse",
+        "queryHistoryId": 170451912,
+        "queryHistoryIdList": [
+            170451912
+        ],
+        "queryIdList": [
+            "aeolus.vizQuery.930565.app_77.report_undefined.dataset_27611.queryScene_vizQuery.d95645ce-ce4a-4933-9d44-d69d5a434487.base-query._20260513_093842_WDAjZtoALm.main_query_processed.small"
+        ],
+        "region": "cn_rangers",
+        "shardStatistics": null,
+        "sqlList": [
+            "SELECT (`biz_dt`) AS _2667704, (`key_cust_ind`) AS _2667821, (sum(`vn`)) AS _sum_2667805, (count(distinct `ecif_cust_code`)) AS _countdistinct_2667711, (sum(`undisc_ln_bal`)) AS _sum_2667774, (sum(`dept_bal_avg_y`)) AS _sum_2667749 FROM `aeolus_data_db_rangers_202511`.`aeolus_data_table_22_30568_prod` WHERE ((((p_date >= '2025-12-31') AND (p_date <= '2025-12-31')))) GROUP BY `biz_dt`, `key_cust_ind` ORDER BY _2667704 ASC LIMIT 1000 FORMAT JSONCompact /*data_source_id: 73, region: cn*/"
+        ],
+        "statistics": {
+            "bytes_read": 536491987,
+            "elapsed": 0.962921503,
+            "row_cnt": 3,
+            "rows_read": 8254369
+        },
+        "total": 3,
+        "vizData": {
+            "advisedChart": null,
+            "aliasMap": {
+                "260513092436030": "\u4e1a\u52a1\u65e5\u671f",
+                "260513092436039": "\u603b\u5206\u884c\u91cd\u70b9\u5ba2\u6237\u6807\u5fd7",
+                "260513092436082": "VN",
+                "260513092436197": "\u5ba2\u6237\u7f16\u53f7",
+                "260513092436238": "\u975e\u8d34\u73b0\u8d37\u6b3e\u4f59\u989d",
+                "260513092436247": "\u5b58\u6b3e\u5e74\u65e5\u5747"
+            },
+            "autoFormat": {
+                "260513092436082": {
+                    "field": {
+                        "kSep": true,
+                        "precision": 2,
+                        "precisionType": "decimalDigits",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "label": {
+                        "kSep": true,
+                        "precision": 2,
+                        "precisionType": "decimalDigits",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "tooltip": {
+                        "kSep": true,
+                        "precision": 2,
+                        "precisionType": "decimalDigits",
+                        "type": "digit",
+                        "unit": null
+                    }
+                },
+                "260513092436238": {
+                    "field": {
+                        "kSep": true,
+                        "precision": 4,
+                        "precisionType": "significantDecimal",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "label": {
+                        "kSep": true,
+                        "precision": 4,
+                        "precisionType": "significantDecimal",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "tooltip": {
+                        "kSep": true,
+                        "precision": 4,
+                        "precisionType": "significantDecimal",
+                        "type": "digit",
+                        "unit": null
+                    }
+                },
+                "260513092436247": {
+                    "field": {
+                        "kSep": true,
+                        "precision": 2,
+                        "precisionType": "decimalDigits",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "label": {
+                        "kSep": true,
+                        "precision": 2,
+                        "precisionType": "decimalDigits",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "tooltip": {
+                        "kSep": true,
+                        "precision": 2,
+                        "precisionType": "decimalDigits",
+                        "type": "digit",
+                        "unit": null
+                    }
+                }
+            },
+            "cells": [
+                {
+                    "column": [
+                        "260513092436030",
+                        "260513092436039",
+                        "260513092436082",
+                        "260513092436197",
+                        "260513092436238",
+                        "260513092436247"
+                    ],
+                    "tooltip": []
+                }
+            ],
+            "chartType": "table",
+            "dataFormatUnit": "auto",
+            "datasets": [
+                {
+                    "260513092436030": "2025-12-31",
+                    "260513092436039": "",
+                    "260513092436082": "-6347874856.7300005",
+                    "260513092436197": "6460",
+                    "260513092436238": "0",
+                    "260513092436247": "1383434063.8059888"
+                },
+                {
+                    "260513092436030": "2025-12-31",
+                    "260513092436039": "0",
+                    "260513092436082": "45516565913.38026",
+                    "260513092436197": "4476657",
+                    "260513092436238": "1790596635171.7617",
+                    "260513092436247": "2376218316318.667"
+                },
+                {
+                    "260513092436030": "2025-12-31",
+                    "260513092436039": "1",
+                    "260513092436082": "35504009788.399994",
+                    "260513092436197": "66906",
+                    "260513092436238": "1829271321616.762",
+                    "260513092436247": "1481980239307.1123"
+                }
+            ],
+            "displayConf": {
+                "alignDimension": "left",
+                "alignMeasure": "right",
+                "alternateRow": true,
+                "alternateRowColor": "#FBFBFC",
+                "autoWrap": false,
+                "bodyFontBold": false,
+                "bodyFontColor": "#141414",
+                "bodyFontItalic": false,
+                "bodyFontSize": 12,
+                "bodyFontUnderline": false,
+                "colPadding": null,
+                "colSpaceMode": "tight",
+                "columnWidth": [],
+                "compact": false,
+                "compactDirection": "horizontal",
+                "customFields": {
+                    "enable": true
+                },
+                "display": "standard",
+                "fixedIndex": -1,
+                "gridLineColor": "#E1E4E8",
+                "gridLineFrame": true,
+                "gridLineFrameColor": null,
+                "gridLineFrameStyle": "solid",
+                "gridLineFrameWidth": 1,
+                "gridLineHorizontal": true,
+                "gridLineHorizontalColor": null,
+                "gridLineHorizontalStyle": "solid",
+                "gridLineHorizontalWidth": 1,
+                "gridLineVertical": true,
+                "gridLineVerticalColor": null,
+                "gridLineVerticalStyle": "solid",
+                "gridLineVerticalWidth": 1,
+                "headerBackground": true,
+                "headerColor": "#EEF1F5",
+                "headerFontBold": true,
+                "headerFontColor": "#1B1F23",
+                "headerFontItalic": false,
+                "headerFontSize": 12,
+                "headerFontUnderline": false,
+                "headerMenu": true,
+                "headerSubTitleFontBold": false,
+                "headerSubTitleFontColor": "rgba(20, 20, 20, 0.45)",
+                "headerSubTitleFontItalic": false,
+                "headerSubTitleFontSize": 12,
+                "headerSubTitleFontUnderline": false,
+                "hideHeader": false,
+                "hoverHighlight": "row",
+                "lineNumber": false,
+                "loadPartialData": true,
+                "measureFirst": false,
+                "pageSize": 20,
+                "pagination": false,
+                "rowPadding": null,
+                "rowSpaceMode": "loose",
+                "sortable": false,
+                "specialValue": {
+                    "dimensions": "null",
+                    "measures": "bracketTxt"
+                },
+                "tableStyle": "standard",
+                "transpose": false,
+                "version": 33
+            },
+            "domainMap": {
+                "260513092436030": [
+                    "2025-12-31"
+                ],
+                "260513092436039": [
+                    "",
+                    "0",
+                    "1"
+                ],
+                "260513092436082": [
+                    -6347874856.7300005,
+                    45516565913.38026
+                ],
+                "260513092436197": [
+                    6460.0,
+                    4476657.0
+                ],
+                "260513092436238": [
+                    0.0,
+                    1829271321616.762
+                ],
+                "260513092436247": [
+                    1383434063.8059888,
+                    2376218316318.667
+                ]
+            },
+            "fieldMap": {
+                "260513092436030": {
+                    "accessible": true,
+                    "alias": "\u4e1a\u52a1\u65e5\u671f",
+                    "description": "\u4e1a\u52a1\u65e5\u671f",
+                    "display": true,
+                    "domain": [
+                        "2025-12-31"
+                    ],
+                    "format": {
+                        "dataFormatUnit": "auto"
+                    },
+                    "location": "dimensions",
+                    "roleType": 0,
+                    "type": "date",
+                    "visible": true
+                },
+                "260513092436039": {
+                    "accessible": true,
+                    "alias": "\u603b\u5206\u884c\u91cd\u70b9\u5ba2\u6237\u6807\u5fd7",
+                    "description": "\u603b\u5206\u884c\u91cd\u70b9\u5ba2\u6237\u6807\u5fd7",
+                    "display": true,
+                    "domain": [
+                        "",
+                        "0",
+                        "1"
+                    ],
+                    "format": {
+                        "dataFormatUnit": "auto"
+                    },
+                    "location": "dimensions",
+                    "roleType": 0,
+                    "type": "string",
+                    "visible": true
+                },
+                "260513092436082": {
+                    "accessible": true,
+                    "alias": "VN",
+                    "autoFormat": {
+                        "field": {
+                            "kSep": true,
+                            "precision": 2,
+                            "precisionType": "decimalDigits",
+                            "type": "digit",
+                            "unit": null
+                        },
+                        "label": {
+                            "kSep": true,
+                            "precision": 2,
+                            "precisionType": "decimalDigits",
+                            "type": "digit",
+                            "unit": null
+                        },
+                        "tooltip": {
+                            "kSep": true,
+                            "precision": 2,
+                            "precisionType": "decimalDigits",
+                            "type": "digit",
+                            "unit": null
+                        }
+                    },
+                    "description": "VN",
+                    "display": true,
+                    "domain": [
+                        -6347874856.7300005,
+                        45516565913.38026
+                    ],
+                    "format": {
+                        "auto": true,
+                        "dataFormatUnit": "auto",
+                        "kSep": true,
+                        "precision": 4,
+                        "precisionType": "significantDecimal",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "location": "measures",
+                    "roleType": 1,
+                    "type": "float",
+                    "visible": true
+                },
+                "260513092436197": {
+                    "accessible": true,
+                    "alias": "\u5ba2\u6237\u7f16\u53f7",
+                    "description": "\u5ba2\u6237\u7f16\u53f7",
+                    "display": true,
+                    "domain": [
+                        6460.0,
+                        4476657.0
+                    ],
+                    "format": {
+                        "dataFormatUnit": "auto"
+                    },
+                    "location": "measures",
+                    "roleType": 1,
+                    "type": "int",
+                    "visible": true
+                },
+                "260513092436238": {
+                    "accessible": true,
+                    "alias": "\u975e\u8d34\u73b0\u8d37\u6b3e\u4f59\u989d",
+                    "autoFormat": {
+                        "field": {
+                            "kSep": true,
+                            "precision": 4,
+                            "precisionType": "significantDecimal",
+                            "type": "digit",
+                            "unit": null
+                        },
+                        "label": {
+                            "kSep": true,
+                            "precision": 4,
+                            "precisionType": "significantDecimal",
+                            "type": "digit",
+                            "unit": null
+                        },
+                        "tooltip": {
+                            "kSep": true,
+                            "precision": 4,
+                            "precisionType": "significantDecimal",
+                            "type": "digit",
+                            "unit": null
+                        }
+                    },
+                    "description": "\u975e\u8d34\u73b0\u8d37\u6b3e\u4f59\u989d",
+                    "display": true,
+                    "domain": [
+                        0.0,
+                        1829271321616.762
+                    ],
+                    "format": {
+                        "auto": true,
+                        "dataFormatUnit": "auto",
+                        "kSep": true,
+                        "precision": 4,
+                        "precisionType": "significantDecimal",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "location": "measures",
+                    "roleType": 1,
+                    "type": "float",
+                    "visible": true
+                },
+                "260513092436247": {
+                    "accessible": true,
+                    "alias": "\u5b58\u6b3e\u5e74\u65e5\u5747",
+                    "autoFormat": {
+                        "field": {
+                            "kSep": true,
+                            "precision": 2,
+                            "precisionType": "decimalDigits",
+                            "type": "digit",
+                            "unit": null
+                        },
+                        "label": {
+                            "kSep": true,
+                            "precision": 2,
+                            "precisionType": "decimalDigits",
+                            "type": "digit",
+                            "unit": null
+                        },
+                        "tooltip": {
+                            "kSep": true,
+                            "precision": 2,
+                            "precisionType": "decimalDigits",
+                            "type": "digit",
+                            "unit": null
+                        }
+                    },
+                    "description": "\u5b58\u6b3e\u5e74\u65e5\u5747",
+                    "display": true,
+                    "domain": [
+                        1383434063.8059888,
+                        2376218316318.667
+                    ],
+                    "format": {
+                        "auto": true,
+                        "dataFormatUnit": "auto",
+                        "kSep": true,
+                        "precision": 4,
+                        "precisionType": "significantDecimal",
+                        "type": "digit",
+                        "unit": null
+                    },
+                    "location": "measures",
+                    "roleType": 1,
+                    "type": "float",
+                    "visible": true
+                }
+            },
+            "isEmpty": false,
+            "locationMap": {
+                "dimensions": [
+                    "260513092436030",
+                    "260513092436039"
+                ],
+                "measures": [
+                    "260513092436082",
+                    "260513092436197",
+                    "260513092436238",
+                    "260513092436247"
+                ]
+            },
+            "other": {
+                "length": 3
+            },
+            "statistics": {
+                "isPartialData": false
+            }
+        }
+    },
+    "msg": "\u6210\u529f"
+}
