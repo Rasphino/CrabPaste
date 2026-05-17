@@ -115,6 +115,10 @@ fn to_tsv(data: &TableData) -> String {
 }
 
 impl eframe::App for CrabPasteApp {
+    fn clear_color(&self, visuals: &egui::Visuals) -> [f32; 4] {
+        visuals.window_fill().to_normalized_gamma_f32()
+    }
+
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let ctx = ui.ctx().clone();
 

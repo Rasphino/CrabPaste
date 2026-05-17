@@ -1,3 +1,5 @@
+use egui::Visuals;
+
 mod app;
 mod parser;
 
@@ -12,6 +14,9 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "CrabPaste - BI Table Paster",
         options,
-        Box::new(|_cc| Ok(Box::new(app::CrabPasteApp::default()))),
+        Box::new(|cc| {
+            cc.egui_ctx.set_visuals(Visuals::light());
+            Ok(Box::new(app::CrabPasteApp::default()))}
+        ),
     )
 }
