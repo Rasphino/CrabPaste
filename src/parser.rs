@@ -40,10 +40,10 @@ pub fn parse(json_str: &str) -> Result<TableData, String> {
         .ok_or("Missing data.vizData.locationMap")?;
 
     // Build ordered column list: dimensions first, then measures
-    let dims = location_map
+    let dims: &[Value] = location_map
         .get("dimensions")
         .and_then(|v| v.as_array())
-        .ok_or("Missing locationMap.dimensions")?;
+        .map_or(&[], |v| v.as_slice());
 
     let measures = location_map
         .get("measures")
@@ -291,5 +291,23 @@ mod tests {
         // Check first row - VN should be formatted with commas
         let vn = &result.rows[0][2];
         assert!(vn.contains(","), "VN should have thousands separator: {vn}");
+    }
+
+    #[test]
+    fn test_parse_payload2_no_dimensions() {
+        let json = std::fs::read_to_string("payload2.json").unwrap();
+        let result = parse(&json).unwrap();
+        assert_eq!(result.columns.len(), 13);
+        assert_eq!(result.rows.len(), 18);
+
+        // First column: 统一社会信用代码
+        assert_eq!(result.columns[0].name, "统一社会信用代码");
+
+        // "折算系数" at index 5: precisionType=significantDecimal, precision=4
+        // 1.5 with 4 significant digits → "1.500"
+        assert_eq!(result.rows[0][5], "1.500");
+
+        // "企业名称" at index 1 should contain Chinese text
+        assert!(!result.rows[0][1].is_empty());
     }
 }
