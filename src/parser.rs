@@ -21,7 +21,7 @@ struct FormatConfig {
     precision_type: String, // "decimalDigits" or "significantDecimal"
 }
 
-pub fn parse(json_str: &str) -> Result<TableData, String> {
+pub fn parse(json_str: &str, force_k_sep: Option<bool>) -> Result<TableData, String> {
     let root: Value =
         serde_json::from_str(json_str).map_err(|e| format!("JSON parse error: {}", e))?;
 
@@ -105,7 +105,7 @@ pub fn parse(json_str: &str) -> Result<TableData, String> {
         for col_id in &col_ids {
             let value_str = match row_map.get(col_id) {
                 None | Some(Value::Null) => String::new(),
-                Some(v) => format_json_value(v, col_id, field_map),
+                Some(v) => format_json_value(v, col_id, field_map, force_k_sep),
             };
             row.push(value_str);
         }
@@ -115,7 +115,7 @@ pub fn parse(json_str: &str) -> Result<TableData, String> {
     Ok(TableData { columns, rows })
 }
 
-fn format_json_value(value: &Value, col_id: &str, field_map: &serde_json::Map<String, Value>) -> String {
+fn format_json_value(value: &Value, col_id: &str, field_map: &serde_json::Map<String, Value>, force_k_sep: Option<bool>) -> String {
     let field = field_map.get(col_id);
     let col_type = field
         .and_then(|f| f.get("type"))
@@ -124,12 +124,12 @@ fn format_json_value(value: &Value, col_id: &str, field_map: &serde_json::Map<St
     let fmt = get_format_config(field);
 
     match value {
-        Value::Number(n) => format_number(n, &fmt),
+        Value::Number(n) => format_number(n, &fmt, force_k_sep),
         Value::String(s) => {
             // Datasets often store numbers as strings — parse and format them
             if (col_type == "float" || col_type == "int") && !s.is_empty() {
                 if let Ok(n) = serde_json::from_str::<serde_json::Number>(s) {
-                    return format_number(&n, &fmt);
+                    return format_number(&n, &fmt, force_k_sep);
                 }
             }
             s.clone()
@@ -179,9 +179,11 @@ fn get_format_config(
     }
 }
 
-fn format_number(n: &serde_json::Number, fmt: &FormatConfig) -> String {
+fn format_number(n: &serde_json::Number, fmt: &FormatConfig, force_k_sep: Option<bool>) -> String {
+    let k_sep = force_k_sep.unwrap_or(fmt.k_sep);
+
     if let Some(i) = n.as_i64() {
-        return if fmt.k_sep {
+        return if k_sep {
             format_with_separator(i as f64, 0)
         } else {
             i.to_string()
@@ -191,11 +193,11 @@ fn format_number(n: &serde_json::Number, fmt: &FormatConfig) -> String {
     let f = n.as_f64().unwrap_or(0.0);
 
     if fmt.precision_type == "significantDecimal" {
-        format_significant(f, fmt.precision, fmt.k_sep)
+        format_significant(f, fmt.precision, k_sep)
     } else {
         // decimalDigits: fixed decimal places
         let rounded = round_to(f, fmt.precision);
-        if fmt.k_sep {
+        if k_sep {
             format_with_separator(rounded, fmt.precision)
         } else {
             format!("{:.prec$}", rounded, prec = fmt.precision as usize)
@@ -280,7 +282,7 @@ mod tests {
     #[test]
     fn test_parse_payload() {
         let json = std::fs::read_to_string("payload.json").unwrap();
-        let result = parse(&json).unwrap();
+        let result = parse(&json, None).unwrap();
         assert_eq!(result.columns.len(), 6);
         assert_eq!(result.rows.len(), 3);
 
@@ -296,7 +298,7 @@ mod tests {
     #[test]
     fn test_parse_payload2_no_dimensions() {
         let json = std::fs::read_to_string("payload2.json").unwrap();
-        let result = parse(&json).unwrap();
+        let result = parse(&json, None).unwrap();
         assert_eq!(result.columns.len(), 13);
         assert_eq!(result.rows.len(), 18);
 

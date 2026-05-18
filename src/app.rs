@@ -9,6 +9,8 @@ pub struct CrabPasteApp {
     status_color: Color32,
     row_count: usize,
     col_count: usize,
+    dark_mode: bool,
+    k_sep_toggle: bool,
 }
 
 impl Default for CrabPasteApp {
@@ -20,6 +22,8 @@ impl Default for CrabPasteApp {
             status_color: Color32::GRAY,
             row_count: 0,
             col_count: 0,
+            dark_mode: false,
+            k_sep_toggle: false,
         }
     }
 }
@@ -31,7 +35,8 @@ impl CrabPasteApp {
             return;
         }
 
-        match parser::parse(&self.input_text) {
+        let force_k_sep = if self.k_sep_toggle { Some(true) } else { None };
+        match parser::parse(&self.input_text, force_k_sep) {
             Ok(data) => {
                 self.row_count = data.rows.len();
                 self.col_count = data.columns.len();
@@ -122,6 +127,13 @@ impl eframe::App for CrabPasteApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let ctx = ui.ctx().clone();
 
+        // Apply dark/light theme
+        ctx.set_visuals(if self.dark_mode {
+            egui::Visuals::dark()
+        } else {
+            egui::Visuals::light()
+        });
+
         // Handle dropped files
         let dropped_files = ctx.input(|i| i.raw.dropped_files.clone());
         for file in &dropped_files {
@@ -162,8 +174,20 @@ impl eframe::App for CrabPasteApp {
                 });
                 ui.separator();
 
+                ui.horizontal(|ui| {
+                    if ui.checkbox(&mut self.k_sep_toggle, "千位分隔符").changed()
+                        && self.table_data.is_some()
+                    {
+                        self.parse();
+                    }
+                    if ui.checkbox(&mut self.dark_mode, "黑暗模式").changed() {
+                        // applied at start of next frame
+                    }
+                });
+                ui.separator();
+
                 // Compute height budget for the scroll area
-                let used_height = 56.0; // title + button row + separators
+                let used_height = 80.0; // title + config row + button row + separators
                 let scroll_h = (input_height - used_height).max(50.0);
 
                 ScrollArea::vertical()
