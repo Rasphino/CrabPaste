@@ -7,7 +7,6 @@ mod parser;
 
 fn load_cjk_font(ctx: &egui::Context) {
     let font_path = if cfg!(target_os = "macos") {
-        // Try PingFang first (newer macOS), fall back to STHeiti
         let pingfang = "/System/Library/Fonts/PingFang.ttc";
         if std::path::Path::new(pingfang).exists() {
             pingfang.to_owned()
@@ -16,8 +15,21 @@ fn load_cjk_font(ctx: &egui::Context) {
         }
     } else if cfg!(target_os = "windows") {
         "C:\\Windows\\Fonts\\msyh.ttc".to_owned()
+    } else if cfg!(target_os = "linux") {
+        let candidates = [
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+            "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+            "/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc",
+            "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+            "/usr/share/fonts/NotoSansCJK-Regular.ttc",
+        ];
+        candidates
+            .iter()
+            .find(|p| std::path::Path::new(p).exists())
+            .map(|p| p.to_string())
+            .unwrap_or_default()
     } else {
-        return;
+        String::new()
     };
 
     if let Ok(bytes) = std::fs::read(&font_path) {
