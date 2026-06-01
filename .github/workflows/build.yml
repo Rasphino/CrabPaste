@@ -62,6 +62,8 @@ jobs:
           rsvg-convert -w 256 -h 256 logo.svg -o AppDir/usr/share/icons/hicolor/256x256/apps/crabpaste.png
           rsvg-convert -w 48 -h 48 logo.svg -o AppDir/usr/share/icons/hicolor/48x48/apps/crabpaste.png
 
+          ln -s usr/share/icons/hicolor/256x256/apps/crabpaste.png AppDir/crabpaste.png
+
       - name: Build AppImage
         run: |
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
