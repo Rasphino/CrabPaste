@@ -50,6 +50,8 @@ jobs:
           Categories=Utility;
           DESKTOP
 
+          ln -s usr/share/applications/crabpaste.desktop AppDir/crabpaste.desktop
+
           cat > AppDir/AppRun << 'APPRUN'
           #!/bin/bash
           HERE="$(dirname "$(readlink -f "${0}")")"
