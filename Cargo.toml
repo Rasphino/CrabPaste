@@ -10,3 +10,6 @@ egui = "0.34.2"
 egui_extras = "0.34.2"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149", features = ["preserve_order"] }
+
+[build-dependencies]
+winres = "0.1"
