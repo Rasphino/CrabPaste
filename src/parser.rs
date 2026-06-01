@@ -75,10 +75,10 @@ fn parse_bi(root: &Value, force_k_sep: Option<bool>) -> Result<TableData, String
         .and_then(|v| v.as_array())
         .map_or(&[], |v| v.as_slice());
 
-    let measures = location_map
+    let measures: &[Value] = location_map
         .get("measures")
         .and_then(|v| v.as_array())
-        .ok_or("Missing locationMap.measures")?;
+        .map_or(&[], |v| v.as_slice());
 
     let mut columns = Vec::new();
     let mut col_ids = Vec::new();
