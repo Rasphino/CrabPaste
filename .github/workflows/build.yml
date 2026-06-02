@@ -35,8 +35,8 @@ jobs:
             libxkbcommon-dev libssl-dev libgtk-3-dev librsvg2-bin
 
       - uses: dtolnay/rust-toolchain@stable
-      - name: Build release
-        run: cargo build --release
+      - name: Build debug
+        run: cargo build
 
       - name: Prepare AppDir
         run: |
@@ -44,7 +44,7 @@ jobs:
             AppDir/usr/share/icons/hicolor/256x256/apps \
             AppDir/usr/share/icons/hicolor/48x48/apps
 
-          cp target/release/crabpaste AppDir/usr/bin/
+          cp target/debug/crabpaste AppDir/usr/bin/
 
           cat > AppDir/usr/share/applications/crabpaste.desktop << 'DESKTOP'
           [Desktop Entry]
