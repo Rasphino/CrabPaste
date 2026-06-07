@@ -1,8 +1,19 @@
 use serde_json::Value;
 
 pub struct TableData {
+    pub source_format: DataFormatLabel,
     pub columns: Vec<ColumnInfo>,
     pub rows: Vec<Vec<String>>,
+}
+
+impl TableData {
+    pub fn row_count(&self) -> usize {
+        self.rows.len()
+    }
+
+    pub fn column_count(&self) -> usize {
+        self.columns.len()
+    }
 }
 
 pub struct ColumnInfo {
@@ -21,20 +32,31 @@ struct FormatConfig {
     precision_type: String, // "decimalDigits" or "significantDecimal"
 }
 
-enum DataFormat {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DataFormatLabel {
     Bi,
     Dsp1,
     Dsp2,
 }
 
-fn detect_format(root: &Value) -> Option<DataFormat> {
+impl DataFormatLabel {
+    pub fn display_name(self) -> &'static str {
+        match self {
+            Self::Bi => "BI",
+            Self::Dsp1 => "DSP-1",
+            Self::Dsp2 => "DSP-2",
+        }
+    }
+}
+
+fn detect_format(root: &Value) -> Option<DataFormatLabel> {
     let data = root.get("data")?;
     if data.get("vizData").is_some() {
-        Some(DataFormat::Bi)
+        Some(DataFormatLabel::Bi)
     } else if data.get("resultList").is_some() {
-        Some(DataFormat::Dsp1)
+        Some(DataFormatLabel::Dsp1)
     } else if data.get("dataList").is_some() {
-        Some(DataFormat::Dsp2)
+        Some(DataFormatLabel::Dsp2)
     } else {
         None
     }
@@ -45,9 +67,9 @@ pub fn parse(json_str: &str, force_k_sep: Option<bool>) -> Result<TableData, Str
         serde_json::from_str(json_str).map_err(|e| format!("JSON parse error: {}", e))?;
 
     match detect_format(&root) {
-        Some(DataFormat::Bi) => parse_bi(&root, force_k_sep),
-        Some(DataFormat::Dsp1) => parse_dsp1(&root, force_k_sep),
-        Some(DataFormat::Dsp2) => parse_dsp2(&root),
+        Some(DataFormatLabel::Bi) => parse_bi(&root, force_k_sep),
+        Some(DataFormatLabel::Dsp1) => parse_dsp1(&root, force_k_sep),
+        Some(DataFormatLabel::Dsp2) => parse_dsp2(&root),
         None => Err("Unknown JSON format: no vizData, resultList, or dataList found".into()),
     }
 }
@@ -128,9 +150,7 @@ fn parse_bi(root: &Value, force_k_sep: Option<bool>) -> Result<TableData, String
 
     let mut rows = Vec::new();
     for row_obj in datasets {
-        let row_map = row_obj
-            .as_object()
-            .ok_or("Invalid row in datasets")?;
+        let row_map = row_obj.as_object().ok_or("Invalid row in datasets")?;
         let mut row = Vec::new();
         for col_id in &col_ids {
             let value_str = match row_map.get(col_id) {
@@ -142,10 +162,19 @@ fn parse_bi(root: &Value, force_k_sep: Option<bool>) -> Result<TableData, String
         rows.push(row);
     }
 
-    Ok(TableData { columns, rows })
+    Ok(TableData {
+        source_format: DataFormatLabel::Bi,
+        columns,
+        rows,
+    })
 }
 
-fn format_json_value(value: &Value, col_id: &str, field_map: &serde_json::Map<String, Value>, force_k_sep: Option<bool>) -> String {
+fn format_json_value(
+    value: &Value,
+    col_id: &str,
+    field_map: &serde_json::Map<String, Value>,
+    force_k_sep: Option<bool>,
+) -> String {
     let field = field_map.get(col_id);
     let col_type = field
         .and_then(|f| f.get("type"))
@@ -157,10 +186,11 @@ fn format_json_value(value: &Value, col_id: &str, field_map: &serde_json::Map<St
         Value::Number(n) => format_number(n, &fmt, force_k_sep),
         Value::String(s) => {
             // Datasets often store numbers as strings — parse and format them
-            if (col_type == "float" || col_type == "int") && !s.is_empty() {
-                if let Ok(n) = serde_json::from_str::<serde_json::Number>(s) {
-                    return format_number(&n, &fmt, force_k_sep);
-                }
+            if (col_type == "float" || col_type == "int")
+                && !s.is_empty()
+                && let Ok(n) = serde_json::from_str::<serde_json::Number>(s)
+            {
+                return format_number(&n, &fmt, force_k_sep);
             }
             s.clone()
         }
@@ -169,9 +199,7 @@ fn format_json_value(value: &Value, col_id: &str, field_map: &serde_json::Map<St
     }
 }
 
-fn get_format_config(
-    field: Option<&Value>,
-) -> FormatConfig {
+fn get_format_config(field: Option<&Value>) -> FormatConfig {
     let default = FormatConfig {
         k_sep: false,
         precision: 2,
@@ -184,11 +212,9 @@ fn get_format_config(
     };
 
     // Try field.format first, then field.autoFormat.field
-    let fmt = field.get("format").or_else(|| {
-        field
-            .get("autoFormat")
-            .and_then(|a| a.get("field"))
-    });
+    let fmt = field
+        .get("format")
+        .or_else(|| field.get("autoFormat").and_then(|a| a.get("field")));
 
     let fmt = match fmt {
         Some(f) => f,
@@ -197,10 +223,7 @@ fn get_format_config(
 
     FormatConfig {
         k_sep: fmt.get("kSep").and_then(|v| v.as_bool()).unwrap_or(false),
-        precision: fmt
-            .get("precision")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(2) as u32,
+        precision: fmt.get("precision").and_then(|v| v.as_u64()).unwrap_or(2) as u32,
         precision_type: fmt
             .get("precisionType")
             .and_then(|v| v.as_str())
@@ -237,9 +260,7 @@ fn parse_dsp1(root: &Value, force_k_sep: Option<bool>) -> Result<TableData, Stri
 
     let mut rows = Vec::new();
     for row_obj in result_list {
-        let row_map = row_obj
-            .as_object()
-            .ok_or("Invalid row in resultList")?;
+        let row_map = row_obj.as_object().ok_or("Invalid row in resultList")?;
         let mut row = Vec::new();
         for col in &columns {
             let value_str = match row_map.get(&col.id) {
@@ -251,7 +272,11 @@ fn parse_dsp1(root: &Value, force_k_sep: Option<bool>) -> Result<TableData, Stri
         rows.push(row);
     }
 
-    Ok(TableData { columns, rows })
+    Ok(TableData {
+        source_format: DataFormatLabel::Dsp1,
+        columns,
+        rows,
+    })
 }
 
 // ======================== DSP-2 parser (dataList + columnList) ========================
@@ -284,9 +309,7 @@ fn parse_dsp2(root: &Value) -> Result<TableData, String> {
 
     let mut rows = Vec::new();
     for row_obj in data_list {
-        let row_map = row_obj
-            .as_object()
-            .ok_or("Invalid row in dataList")?;
+        let row_map = row_obj.as_object().ok_or("Invalid row in dataList")?;
         let mut row = Vec::new();
         for col in &columns {
             let value_str = match row_map.get(&col.id) {
@@ -298,7 +321,11 @@ fn parse_dsp2(root: &Value) -> Result<TableData, String> {
         rows.push(row);
     }
 
-    Ok(TableData { columns, rows })
+    Ok(TableData {
+        source_format: DataFormatLabel::Dsp2,
+        columns,
+        rows,
+    })
 }
 
 fn format_dsp_value(value: &Value, force_k_sep: Option<bool>) -> String {
@@ -426,13 +453,16 @@ fn format_with_separator(value: f64, decimal_places: u32) -> String {
 
 fn format_int_with_commas(n: i64) -> String {
     let s = n.to_string();
-    let len = s.len();
+    let (sign, digits) = s
+        .strip_prefix('-')
+        .map_or(("", s.as_str()), |rest| ("-", rest));
+    let len = digits.len();
     if len <= 3 {
         return s;
     }
-    let mut result = String::new();
-    for (i, ch) in s.chars().enumerate() {
-        if i > 0 && (len - i) % 3 == 0 {
+    let mut result = String::from(sign);
+    for (i, ch) in digits.chars().enumerate() {
+        if i > 0 && (len - i).is_multiple_of(3) {
             result.push(',');
         }
         result.push(ch);
@@ -450,12 +480,14 @@ mod tests {
         assert_eq!(format_int_with_commas(100), "100");
         assert_eq!(format_int_with_commas(1000), "1,000");
         assert_eq!(format_int_with_commas(45516565913), "45,516,565,913");
+        assert_eq!(format_int_with_commas(-1000000), "-1,000,000");
     }
 
     #[test]
     fn test_parse_bi_1() {
         let json = std::fs::read_to_string("payload-bi-1.json").unwrap();
         let result = parse(&json, None).unwrap();
+        assert_eq!(result.source_format, DataFormatLabel::Bi);
         assert_eq!(result.columns.len(), 6);
         assert_eq!(result.rows.len(), 3);
 
@@ -470,6 +502,7 @@ mod tests {
     fn test_parse_bi_2_no_dimensions() {
         let json = std::fs::read_to_string("payload-bi-2.json").unwrap();
         let result = parse(&json, None).unwrap();
+        assert_eq!(result.source_format.display_name(), "BI");
         assert_eq!(result.columns.len(), 13);
         assert_eq!(result.rows.len(), 18);
 
@@ -483,9 +516,14 @@ mod tests {
         let json = std::fs::read_to_string("payload-dsp-1.json").unwrap();
         // The file is truncated in context, read it properly
         let result = parse(&json, None).unwrap();
+        assert_eq!(result.source_format, DataFormatLabel::Dsp1);
 
         // DSP-1: columns are the keys of each object in resultList
-        assert!(result.columns.len() > 10, "expected many columns, got {}", result.columns.len());
+        assert!(
+            result.columns.len() > 10,
+            "expected many columns, got {}",
+            result.columns.len()
+        );
         assert_eq!(result.columns[0].name, "企业名称（工商）");
 
         // Should have rows
@@ -496,6 +534,7 @@ mod tests {
     fn test_parse_dsp_2() {
         let json = std::fs::read_to_string("payload-dsp-2.json").unwrap();
         let result = parse(&json, None).unwrap();
+        assert_eq!(result.source_format, DataFormatLabel::Dsp2);
 
         assert_eq!(result.columns.len(), 3);
         assert_eq!(result.columns[0].name, "数据日期");

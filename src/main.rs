@@ -3,6 +3,7 @@
 use egui::Visuals;
 
 mod app;
+mod export;
 mod parser;
 
 fn load_cjk_font(ctx: &egui::Context) {
